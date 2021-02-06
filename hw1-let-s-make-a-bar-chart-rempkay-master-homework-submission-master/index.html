@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>D3 Tabular Vis-Pollution</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+<h1>Table Vis</h1>
+<script type="text/javascript">
+
+  var w = 12000;
+  var h = 1200;
+  var cellpadding = 0;
+
+  var svg = d3.select("body").append("svg")
+          .attr("width", w)
+          .attr("height", h);
+
+  d3.csv('assets/data/pollution.csv')
+          .then(function(data){
+          console.log(data);
+
+          //Var Scales
+              var yScale = d3.scaleLinear()
+                    .domain([0, d3.max(data, function(d){
+                      return +(d["Both sexes"]);
+                    })])
+                .range([0, h/2]);
+
+              var colorScale = d3.scaleLinear()
+                   .domain([0, d3.max(data, function(d){
+                     return +(d["Both sexes"]);
+                   })])
+               .range([0, 255]);
+          //Call Rect to make everything a rectangle
+              svg.selectAll("rect")
+                  .data(data)
+                  .enter()
+                  .append("rect")
+                  .attr("width", w / data.length - cellpadding)
+                  .attr("height", h)
+                  .attr("x", function(d, i){
+                    return w / data.length * i;
+              })
+                  .attr("height", function(d){
+                      return yScale(d["Both sexes"]);
+                  })
+                  .attr("y", function(d){
+                      return h/2-yScale(d["Both sexes"]);
+                      })
+              .attr("fill", function(d){
+                    var f = colorScale(d["Both sexes"]);
+                   if(f <= 20)
+                         return "rgb(" + 139 + ",0, 255)"; //return blue
+                   else
+                   if(f <= 10)
+                       return "rgb(" + 255 + ",0, 0)"; //return red
+                  else
+                  return "rgb(" + f + "," + f + "," + f + ")";
+                  });
+
+               svg.selectAll("text")
+                   .data(data)
+                   .enter()
+                   .append("text")
+                   .text(function(d){
+                      return d.Country + " - " + d.Cause;
+                    })
+
+                   .attr("transform", function(d, i){ //trying to show the labels here
+                    return "translate(" + w / data.length * i +
+                        ","+h/2+")"+"rotate(90)"
+                      })
+                  })
+
+
+   </script>
+</body>
+</html>
